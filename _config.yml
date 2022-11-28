@@ -8,8 +8,8 @@
 # Site Settings
 title                    : "Yao Yao (姚瑶)"
 description              : "Phd student in Tsinghua University. Focusing on reinforcement learning, game theory and recommender systems."
-repository               : "https://github.com/YaoYao1995/"
-google_scholar_stats_use_cdn : false
+repository               : "yaoyao1995/yaoyao1995.github.io"
+google_scholar_stats_use_cdn : true
 
 # google analytics
 google_analytics_id      : G-2CP4G5T9LP

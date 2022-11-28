@@ -1,5 +1,5 @@
 
-# 📝 Publications 
+# 📝 Publications Categorized by Research Area
 
 ## 🤖 Reinforcement Learning
 - Zhang W, Xiao X,  **Yao Y**, et al. [MBDP: A Model-based Approach to Achieve both Robustness and Sample Efficiency via Double Dropout Planning]()[J]. arXiv preprint arXiv:2108.01295, 2021.

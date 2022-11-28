@@ -11,5 +11,5 @@ My full paper list is shown at [my google scholar page](https://scholar.google.c
 - **Yao Y**, Xiao X, Zhang C, et al. [Classifying Quality Centrality for Source Localization in Social Networks](https://link.springer.com/chapter/10.1007/978-3-319-94289-6_19)[C]. **ICWS 2018**<strong><span class='show_paper_citations' data='hNO0NdEAAAAJ:Tyk-4Ss8FVUC'></span></strong>
 
 #### 📔 Co-first-author papers (Names are in Alphabetical Order)
-- Cao X, **Yao Y**, Li L, et al. [iGrow: A Smart Agriculture Solution to Autonomous Greenhouse Control](https://ojs.aaai.org/index.php/AAAI/article/view/21440)[C]. **AAAI 2022** <strong><span class='show_paper_citations' data='hNO0NdEAAAAJ:5nxA0vEk-isC'></span></strong>
+- Cao X, **Yao Y**, Li L, et al. [iGrow: A Smart Agriculture Solution to Autonomous Greenhouse Control](https://ojs.aaai.org/index.php/AAAI/article/view/21440)[C]. **AAAI 2022**<strong><span class='show_paper_citations' data='hNO0NdEAAAAJ:5nxA0vEk-isC'></span></strong>
 - An Z, Cao X, **Yao Y**, et al. [A Simulator-based Planning Framework for Optimizing Autonomous Greenhouse Control Strategy](https://ojs.aaai.org/index.php/ICAPS/article/view/15989)[C]. **ICAPS 2021**<strong><span class='show_paper_citations' data='hNO0NdEAAAAJ:W7OEmFMy1HYC'></span></strong>

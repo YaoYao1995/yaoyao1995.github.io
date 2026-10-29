@@ -1,7 +1,11 @@
-Advised by [Bowen Du (杜博文)](http://scse.buaa.edu.cn/info/1078/7285.htm), I received my bachelor's degree from [School of Computer Science and Engineering](http://scse.buaa.edu.cn/) at Beihang University (北京航空航天大学计算机学院). 
-
-Under the guidance of my advisor [Xi Xiao (肖喜)](https://www.sigs.tsinghua.edu.cn/xx_443/main.htm) and co-advisor [Shutao Xia (夏树涛)](https://www.sigs.tsinghua.edu.cn/xst/main.htm), I received my master's degree from the [Department of Computer Science and Technology](https://www.cs.tsinghua.edu.cn/) at Tsinghua University (清华大学计算机科学与技术系). 
-
-Currently, I am a third-year Ph.D. student in [Tsinghua-Berkeley Shenzhen Institute](https://www.tbsi.edu.cn/), Tsinghua University (清华大学清华-伯克利深圳学院), fortunately, to be mentored by [Xiao Li (肖皪)](https://www.sigs.tsinghua.edu.cn/xl/main.htm) and co-advised by [Max Shen (申作军)](https://shen.ieor.berkeley.edu/). 
-
-My research interest includes reinforcement learning, recommeder systems, ad bidding, social network. I have published more than 10 papers at the top international AI conferences such as AAAI, ICRA, ICAPS, ICASSP, ICWS, ICME. 
+<div class="profile-intro">
+<p class="profile-intro__eyebrow">AI for Science · Resilient urban infrastructure</p>
+<p>I am an <strong>Associate Professor</strong> and master's supervisor at the <a href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm">School of Management Science and Real Estate, Chongqing University</a>. I joined the school in June 2026.</p>
+<p>My research combines <strong>physical modeling, machine learning and deep learning</strong> to improve prediction, simulation and decision-making in complex urban systems. I focus on urban flood prediction and high-resolution nowcasting, including coupled modeling of surface flooding and drainage networks.</p>
+<ul class="profile-intro__interests">
+<li>AI for Science</li><li>Urban flood prediction</li><li>Resilient infrastructure</li><li>Urban renewal</li><li>Blue-green infrastructure</li><li>Decision optimization</li>
+</ul>
+<p>I am also interested in drainage-network optimization, building and community renewal, and blue-green infrastructure for reducing risk and strengthening urban resilience. My goal is to connect risk assessment, process simulation, scenario evaluation and design optimization with practical infrastructure decisions.</p>
+<p>I received my Ph.D. in Management Science and Engineering (2024) and master's degree in Computer Technology (2019) from Tsinghua University, and my bachelor's degree in Computer Science and Technology (2015) from Beihang University. Before joining Chongqing University, I was a Senior Researcher in the AI Innovation Group at Jen Music AI (2024–2026).</p>
+<p class="profile-intro__contact"><a href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm"><i class="fas fa-university" aria-hidden="true"></i> CQU Faculty Profile</a><a href="mailto:yao_yao@cqu.edu.cn"><i class="fas fa-envelope" aria-hidden="true"></i> yao_yao@cqu.edu.cn</a></p>
+</div>

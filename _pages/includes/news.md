@@ -44,7 +44,55 @@
       });
       var years = Object.keys(groups).sort(function (a, b) { return Number(b) - Number(a); });
       if (!years.length) throw new Error('No dated research updates');
-      var fragment = document.createDocumentFragment();
+      var newsTemplates = [
+  ['🥳 Delighted to share our work: ', '!'],
+  ['🎉 Excited to introduce ', '!'],
+  ['✨ A research highlight to share: ', '.'],
+  ['📚 From our research collection: ', '.'],
+  ['🥳 Happy to put the spotlight on ', '!'],
+  ['🔎 Take a closer look at ', '.'],
+  ['🎊 Celebrating the work behind ', '!'],
+  ['💡 Explore the ideas in ', '.'],
+  ['📖 A contribution we are pleased to share: ', '.'],
+  ['🙌 Proud to share ', ' with you!'],
+  ['✨ In the research spotlight: ', '.'],
+  ['🎉 Here is a piece of our research journey: ', '!'],
+  ['🔬 Discover our work on ', '.'],
+  ['🥳 A little research celebration for ', '!'],
+  ['📚 On our reading list: ', '.'],
+  ['💬 We would love to hear your thoughts on ', '.'],
+  ['🌟 Highlighting a contribution from our team: ', '.'],
+  ['🎊 A moment to celebrate ', '!'],
+  ['💡 Curious about our research? Explore ', '.'],
+  ['📖 For a closer look at our work, read ', '.'],
+  ['🙌 Sharing a chapter of our research story: ', '.'],
+  ['✨ An invitation to explore ', '.'],
+  ['🔎 Behind this title is a research journey: ', '.'],
+  ['🎉 Pleased to bring you ', '!'],
+  ['🥳 Here is some research worth sharing: ', '!']
+];
+// Shuffle without replacement; never repeat at a shuffle boundary.
+var templateBag = [];
+var lastTemplate = -1;
+function nextNewsTemplate() {
+  if (!templateBag.length) {
+    templateBag = newsTemplates.map(function (_, index) { return index; });
+    for (var i = templateBag.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temporary = templateBag[i];
+      templateBag[i] = templateBag[j];
+      templateBag[j] = temporary;
+    }
+    if (templateBag[templateBag.length - 1] === lastTemplate) {
+      var first = templateBag[0];
+      templateBag[0] = templateBag[templateBag.length - 1];
+      templateBag[templateBag.length - 1] = first;
+    }
+  }
+  lastTemplate = templateBag.pop();
+  return newsTemplates[lastTemplate];
+}
+var fragment = document.createDocumentFragment();
       years.forEach(function (year, index) {
         var section = document.createElement('details');
         section.open = index === 0;
@@ -59,12 +107,13 @@
         groups[year].sort(function (a, b) { return a.title.localeCompare(b.title); });
         groups[year].forEach(function (item) {
           var entry = document.createElement('li');
-          entry.appendChild(document.createTextNode('🥳 Delighted to share our work: “'));
+          var template = nextNewsTemplate();
+          entry.appendChild(document.createTextNode(template[0] + '“'));
           var link = document.createElement('a');
           link.href = 'https://scholar.google.com/citations?view_op=view_citation&hl=en&user=' + scholarId + '&citation_for_view=' + encodeURIComponent(item.id);
           link.textContent = item.title;
           entry.appendChild(link);
-          entry.appendChild(document.createTextNode('”!'));
+          entry.appendChild(document.createTextNode('”' + template[1]));
           list.appendChild(entry);
         });
         section.appendChild(list);

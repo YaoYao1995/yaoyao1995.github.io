@@ -1,19 +1,41 @@
 <script>
-    $(document).ready(function () {
-        {% if site.google_scholar_stats_use_cdn %}
-        var gsDataBaseUrl = 'https://cdn.jsdelivr.net/gh/{{ site.repository }}@'
-        {% else %}
-        var gsDataBaseUrl = 'https://raw.githubusercontent.com/{{ site.repository }}/'
-        {% endif %}
-        $.getJSON(gsDataBaseUrl + "google-scholar-stats/gs_data.json", function (data) {
-            // var totalCitation = data['citedby']
-            // document.getElementById('total_cit').innerHTML = totalCitation;
-            var citationEles = document.getElementsByClassName('show_paper_citations')
-            Array.prototype.forEach.call(citationEles, element => {
-                var paperId = element.getAttribute('data')
-                var numCitations = data['publications'][paperId]['num_citations']
-                element.innerHTML = ' &#x1F3C5; <font color=#002FA7>Citations</font>: ' + numCitations;
-            });
-        });
-    })
+(function () {  
+var source = 'https://raw.githubusercontent.com/{{ site.repository }}/google-scholar-stats/gs_data.json';  
+// Scholar occasionally replaces publication IDs when records are merged.  
+var aliases = {    
+'hNO0NdEAAAAJ:0EnyYjriUFMC': 'hNO0NdEAAAAJ:hMod-77fHWUC',    
+'hNO0NdEAAAAJ:8k81kl-MbHgC': 'hNO0NdEAAAAJ:e5wmG9Sq2KIC',    
+'hNO0NdEAAAAJ:IjCSPb-OGe4C': 'hNO0NdEAAAAJ:r0BpntZqJG4C',    
+'hNO0NdEAAAAJ:Tyk-4Ss8FVUC': 'hNO0NdEAAAAJ:k_IJM867U9cC',    
+'hNO0NdEAAAAJ:5nxA0vEk-isC': 'hNO0NdEAAAAJ:bEWYMUwI8FkC',    
+'hNO0NdEAAAAJ:W7OEmFMy1HYC': 'hNO0NdEAAAAJ:TFP_iSt0sucC'  
+};  
+function normalize(title) { return title.toLowerCase().replace(/[^\p{L}\p{N}]/gu, ''); }  
+fetch(source, {cache: 'no-store'})
+    .then(function (response) { if (!response.ok) throw new Error('Citation data unavailable'); return response.json(); })
+    .then(function (data) {      
+if (data.scholar_id !== 'hNO0NdEAAAAJ' || !data.publications) return;      
+var publications = data.publications;      
+var byTitle = {};      
+Object.keys(publications).forEach(function (id) {        
+var title = (publications[id].bib || {}).title;        
+if (title) byTitle[normalize(title)] = publications[id];      
+});      
+document.querySelectorAll('.show_paper_citations').forEach(function (element) {        
+var id = element.getAttribute('data');        
+var publication = publications[id] || publications[aliases[id]];        
+if (!publication) {          
+var row = element.closest('li');          
+var link = row && row.querySelector('a');          
+if (link) publication = byTitle[normalize(link.textContent)];        
+}        
+if (!publication || !Number.isInteger(publication.num_citations) || publication.num_citations < 0) return;        
+var link = document.createElement('a');        
+link.href = 'https://scholar.google.com/citations?view_op=view_citation&user=hNO0NdEAAAAJ&citation_for_view=' + encodeURIComponent(publication.author_pub_id);        
+link.textContent = 'Citations: ' + publication.num_citations;        
+element.replaceChildren(document.createTextNode(' · '), link);      
+});    
+})
+    .catch(function () { /* Keep the publication list readable when the data service is unavailable. */ });
+})();
 </script>

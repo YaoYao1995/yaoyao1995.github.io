@@ -1,11 +1,44 @@
-<div class="profile-intro">
-<p class="profile-intro__eyebrow">AI for Science · Resilient urban infrastructure</p>
-<p>I am an <strong>Associate Professor</strong> and master's supervisor at the <a href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm">School of Management Science and Real Estate, Chongqing University</a>. I joined the school in June 2026.</p>
-<p>My research combines <strong>physical modeling, machine learning and deep learning</strong> to improve prediction, simulation and decision-making in complex urban systems. I focus on urban flood prediction and high-resolution nowcasting, including coupled modeling of surface flooding and drainage networks.</p>
-<ul class="profile-intro__interests">
-<li>AI for Science</li><li>Urban flood prediction</li><li>Resilient infrastructure</li><li>Urban renewal</li><li>Blue-green infrastructure</li><li>Decision optimization</li>
-</ul>
-<p>I am also interested in drainage-network optimization, building and community renewal, and blue-green infrastructure for reducing risk and strengthening urban resilience. My goal is to connect risk assessment, process simulation, scenario evaluation and design optimization with practical infrastructure decisions.</p>
-<p>I received my Ph.D. in Management Science and Engineering (2024) and master's degree in Computer Technology (2019) from Tsinghua University, and my bachelor's degree in Computer Science and Technology (2015) from Beihang University. Before joining Chongqing University, I was a Senior Researcher in the AI Innovation Group at Jen Music AI (2024–2026).</p>
-<p class="profile-intro__contact"><a href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm"><i class="fas fa-university" aria-hidden="true"></i> CQU Faculty Profile</a><a href="mailto:yao_yao@cqu.edu.cn"><i class="fas fa-envelope" aria-hidden="true"></i> yao_yao@cqu.edu.cn</a></p>
+<style style="display:none !important">
+.academic-intro{max-width:920px;margin:0 0 48px;color:#39474c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.academic-intro .intro-kicker{display:flex;align-items:center;gap:12px;color:#286570;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin:0 0 18px}
+.academic-intro .intro-kicker:before{content:"";display:block;width:32px;height:2px;background:#286570}
+.academic-intro h1.intro-title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(30px,3vw,44px);font-weight:400;line-height:1.15;letter-spacing:-.035em;color:#213c43;margin:0 0 22px;border:0;padding:0}
+.academic-intro h1.intro-title em{font-weight:400;color:#337582}
+.academic-intro p{font-size:16px;line-height:1.75;margin:0 0 18px}
+.academic-intro .intro-lead{font-size:17px;line-height:1.7;max-width:78ch}
+.academic-intro a{color:#286570;text-decoration:none;border-bottom:1px solid #b8cdd0;transition:color .15s,border-color .15s}
+.academic-intro a:hover{color:#122f35;border-color:#286570}
+.academic-intro a:focus-visible{outline:2px solid #286570;outline-offset:4px}
+.academic-intro .intro-role{font-weight:600;color:#253d43}
+.academic-intro .intro-research{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;margin:28px 0 26px;padding:25px 0;border-top:1px solid #dae4e5;border-bottom:1px solid #dae4e5}
+.academic-intro h2.intro-label{font-family:inherit;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#6a7d81;border:0;padding:0;margin:0 0 14px;font-weight:700}
+.academic-intro .intro-research p{font-size:15px;line-height:1.8;margin:0}
+.academic-intro .research-lines{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.academic-intro .research-lines li{margin:0;display:grid;grid-template-columns:24px 1fr;gap:9px;font-size:14px;line-height:1.55}
+.academic-intro .research-index{font-size:10px;letter-spacing:.06em;color:#658d94;padding-top:3px}
+.academic-intro .research-lines strong{font-weight:600;color:#2c4b53;display:block;margin-bottom:2px}
+.academic-intro .research-lines span.research-detail{color:#65767b;font-size:13px}
+.academic-intro .intro-background{display:grid;grid-template-columns:110px 1fr;gap:24px;align-items:baseline}
+.academic-intro .intro-background p{font-size:14px;line-height:1.8;color:#657278;margin:0}
+.academic-intro .intro-links{display:flex;flex-wrap:wrap;align-items:center;gap:14px 25px;margin-top:26px}
+.academic-intro .intro-links a{font-size:13px;display:inline-flex;align-items:center;gap:8px;padding:9px 0;border:0}
+.academic-intro .intro-links a.intro-faculty{background:#edf4f4;border:1px solid #d5e4e5;border-radius:4px;padding:10px 14px;font-weight:600}
+.academic-intro .intro-links a.intro-faculty:hover{background:#e1eeee}
+.academic-intro .intro-links .intro-arrow{margin-left:9px}
+@media(max-width:700px){.academic-intro{margin-bottom:35px}.academic-intro .intro-research{grid-template-columns:1fr;gap:24px;margin-top:24px}.academic-intro .intro-background{grid-template-columns:1fr;gap:0}.academic-intro .intro-background .intro-label{margin-bottom:10px}.academic-intro .intro-lead{font-size:16px}.academic-intro h1.intro-title{font-size:34px}.academic-intro .intro-links{gap:6px 20px}}
+</style>
+<section class="academic-intro" id="about-me" aria-labelledby="intro-title">
+<p class="intro-kicker">About &amp; Research</p>
+<h1 class="intro-title" id="intro-title">AI for Science.<br><em>Resilient cities, informed decisions.</em></h1>
+<p class="intro-lead">I am an <span class="intro-role">Associate Professor</span> and master's supervisor at the <a href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm">School of Management Science and Real Estate, Chongqing University</a>, where I joined in June 2026.</p>
+<div class="intro-research">
+<div><h2 class="intro-label">Research approach</h2><p>I combine physical modeling, machine learning and deep learning to understand complex urban systems. My research connects risk assessment and process simulation with scenario evaluation and design optimization, supporting practical decisions for resilient infrastructure.</p></div>
+<div><h2 class="intro-label">Current focus</h2><ol class="research-lines">
+<li><span class="research-index">01</span><div><strong>Urban flood prediction</strong><span class="research-detail">High-resolution nowcasting and coupled surface–drainage modeling.</span></div></li>
+<li><span class="research-index">02</span><div><strong>Resilient infrastructure</strong><span class="research-detail">Drainage-network optimization and blue-green infrastructure.</span></div></li>
+<li><span class="research-index">03</span><div><strong>Urban renewal &amp; decision-making</strong><span class="research-detail">Building and community renewal, risk reduction and design optimization.</span></div></li>
+</ol></div>
 </div>
+<div class="intro-background"><h2 class="intro-label">Background</h2><p>I received my Ph.D. in Management Science and Engineering (2024) and master's degree in Computer Technology (2019) from Tsinghua University, and my bachelor's degree in Computer Science and Technology (2015) from Beihang University. Previously, I was a Senior Researcher in the AI Innovation Group at Jen Music AI (2024–2026).</p></div>
+<div class="intro-links"><a class="intro-faculty" href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm"><i class="fas fa-university" aria-hidden="true"></i> CQU Faculty Profile <span class="intro-arrow" aria-hidden="true">↗</span></a><a href="mailto:yao_yao@cqu.edu.cn"><i class="fas fa-envelope" aria-hidden="true"></i> yao_yao@cqu.edu.cn</a></div>
+</section>

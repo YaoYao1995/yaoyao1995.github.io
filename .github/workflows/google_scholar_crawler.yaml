@@ -2,9 +2,13 @@ name: Get Citation Data
 
 on:
   workflow_dispatch:
-  page_build:
   schedule:
-    - cron: "0 8 * * *"
+    # Monday 08:17 Asia/Shanghai (UTC+8).
+    - cron: "17 0 * * 1"
+
+concurrency:
+  group: google-scholar-update
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -15,7 +19,7 @@ jobs:
     - name: Install Reqs
       run: |
         sudo apt-get install python3-setuptools
-    - name: Run
+    - name: Update publications and citations
       run: |
         cd ./google_scholar_crawler
         pip3 install -r requirements.txt

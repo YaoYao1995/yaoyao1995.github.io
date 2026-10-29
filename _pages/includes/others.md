@@ -1,15 +1,18 @@
+# 📖 Education
+- *2019.09–2024.01*, Ph.D. in Management Science and Engineering, Tsinghua University.
+- *2016.09–2019.07*, Master's degree in Computer Technology, Tsinghua University.
+- *2011.09–2015.07*, Bachelor's degree in Computer Science and Technology, Beihang University.
 
-# 📖 Educations
-- *2019.06 - 2022.12 (now)*, Phd, Tsinghua-Berkeley Shenzhen Institute, Tsinghua University, Shenzhen.
-- *2016.09 - 2019.06*, Master, Department of Computer Science and Technology, Tsinghua Univeristy, Beijing.
-- *2011.09 - 2015.06*, Bachelor, School of Computer Science and Engineering, Beihang University, Beijing.
+# 💼 Professional Experience
+- *2026.06–present*, Associate Professor, School of Management Science and Real Estate, Chongqing University.
+- *2024.01–2026.01*, Senior Researcher, AI Innovation Group, Jen Music AI.
 
 # 💬 Invited Talks
 - To be updated.
 
-# 💻 Internships
-- *2022.02 - 2022.05*, Inspir.AI, ***Reinforcement Learning Group***, Shenzhen.
-- *2021.05 - 2021.12*, Tencent, Wechat, ***Data Quality Group***, Shenzhen.
-- *2020.12 - 2021.04*, Bytedance Inc., Data, ***Vertical Strategy Group***, Shenzhen.
-- *2020.01 - 2020.11*, Tencent, AI Lab, ***Machine Learning Group***, Shenzhen.
-- *2018.04 - 2018.07*, Tencent, Wechat, ***Social Communication Group***, Shenzhen.
+# 💻 Research Collaborations & Internships
+- *2022.02–2022.05*, Research collaboration, Reinforcement Learning Group, Inspir.AI.
+- *2021.05–2021.12*, Research internship, Data Quality Group, Tencent WeChat; Tencent Rhino-Bird Elite Program.
+- *2020.12–2021.03*, Research internship, Data Center, ByteDance.
+- *2020.01–2020.12*, Research internship, AI Lab, Tencent Technology and Engineering Group.
+- *2018.04–2018.08*, Research internship, Data Center, Tencent WeChat.

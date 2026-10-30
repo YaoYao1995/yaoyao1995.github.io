@@ -58,15 +58,17 @@ function render(data){
   var key=p.url.toLowerCase();if(seen.has(key))return;seen.add(key);(groups[p.year]||(groups[p.year]=[])).push(p);
  });
  var years=Object.keys(groups).sort(function(a,b){return b-a;});
+ var currentYear=new Intl.DateTimeFormat('en',{year:'numeric',timeZone:'Asia/Shanghai'}).format(new Date());
  roots.forEach(function(root,mode){var fragment=document.createDocumentFragment();
-  years.forEach(function(year,index){var details=el('details');details.open=mode===0?index===0:index<2;var summary=el('summary','',year);summary.appendChild(el('span','year-count',groups[year].length+' '+(groups[year].length===1?'publication':'publications')));details.appendChild(summary);var list=el('ul','scholar-list');
+  var displayYears=mode===0?years.filter(function(year){return year===currentYear;}):years;
+  displayYears.forEach(function(year,index){var details=el('details');details.open=mode===0?index===0:index<2;var summary=el('summary','',year);summary.appendChild(el('span','year-count',groups[year].length+' '+(groups[year].length===1?'publication':'publications')));details.appendChild(summary);var list=el('ul','scholar-list');
    groups[year].sort(function(a,b){return a.title.localeCompare(b.title);}).forEach(function(p){var li=el('li');var link=el('a','',p.title);link.href=p.url;
     if(mode===0){var template=nextNewsTemplate();var line=el('p','news-line');line.appendChild(document.createTextNode(template[0]+'“'));line.appendChild(link);line.appendChild(document.createTextNode('”'+template[1]));li.appendChild(line);li.appendChild(metadata(p));}
-    else{var heading=el('h3','paper-title');heading.appendChild(link);li.appendChild(heading);li.appendChild(authorLine(p.authors));var meta=metadata(p);var read=el('a','','Read paper ↗');read.href=p.url;meta.appendChild(read);if(Number.isInteger(p.citations)){var cite=citationBadge(p.citations);cite.href='https://scholar.google.com/citations?view_op=view_citation&user='+scholarId+'&citation_for_view='+encodeURIComponent(p.scholar_id);meta.appendChild(cite);}li.appendChild(meta);}
+    else{var heading=el('h3','paper-title');heading.appendChild(link);li.appendChild(heading);li.appendChild(authorLine(p.authors));var meta=metadata(p);var read=el('a','','Read paper ↗');read.href=p.url;meta.appendChild(read);li.appendChild(meta);}
     list.appendChild(li);
    });details.appendChild(list);fragment.appendChild(details);
   });
-  if(!years.length)fragment.appendChild(el('p','scholar-note','No verified publications to display yet.'));
+  if(!displayYears.length)fragment.appendChild(el('p','scholar-note',mode===0?'No publication updates for '+currentYear+' yet.':'No verified publications to display yet.'));
   root.replaceChildren(fragment);
  });
  if(Number.isInteger(data.citedby)){var total=citationBadge(data.citedby);total.href='https://scholar.google.com/citations?user='+scholarId;total.title='Google Scholar citations across all works';document.getElementById('scholar-total').replaceChildren(total);}

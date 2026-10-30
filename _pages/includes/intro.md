@@ -19,7 +19,7 @@
 .academic-intro .research-lines strong{font-weight:600;color:#2c4b53;display:block;margin-bottom:2px}
 .academic-intro .research-lines span.research-detail{color:#65767b;font-size:13px}
 .academic-intro .intro-background{display:grid;grid-template-columns:110px 1fr;gap:24px;align-items:baseline}
-.academic-intro .intro-background p{font-size:14px;line-height:1.8;color:#657278;margin:0}
+.academic-intro .intro-background p{font-size:15px;line-height:1.85;color:#657278;margin:0 0 16px}.academic-intro .intro-background p:last-child{margin-bottom:0}
 @media(max-width:700px){.academic-intro{margin-bottom:35px}.academic-intro .intro-research{grid-template-columns:1fr;gap:24px;margin-top:24px}.academic-intro .intro-background{grid-template-columns:1fr;gap:0}.academic-intro .intro-background .intro-label{margin-bottom:10px}.academic-intro .intro-lead{font-size:16px}.academic-intro h1.intro-title{font-size:34px}}
 </style>
 <section class="academic-intro" id="about-me" aria-labelledby="intro-title">
@@ -34,5 +34,10 @@
 <li><span class="research-index">03</span><div><strong>Urban renewal &amp; decision-making</strong><span class="research-detail">Building and community renewal, risk reduction and design optimization.</span></div></li>
 </ol></div>
 </div>
-<div class="intro-background"><h2 class="intro-label">Background</h2><p>I received my Ph.D. in Management Science and Engineering (2024) and master's degree in Computer Technology (2019) from Tsinghua University, and my bachelor's degree in Computer Science and Technology (2015) from Beihang University. Previously, I was a Senior Researcher in the AI Innovation Group at Jen Music AI (2024–2026).</p></div>
+<div class="intro-background"><h2 class="intro-label">Background</h2><div>
+<p>My path into research has been shaped by generous mentors and enduring collaborations. It began at the <a href="https://scse.buaa.edu.cn/">School of Computer Science and Engineering, Beihang University</a>, where I earned my bachelor's degree in Computer Science and Technology in 2015 under the guidance of <a href="https://shi.buaa.edu.cn/09712/zh_CN/index.htm">Prof. Bowen Du</a>.</p>
+<p>I continued my studies in the <a href="https://www.cs.tsinghua.edu.cn/">Department of Computer Science and Technology at Tsinghua University</a>, receiving my master's degree in Computer Technology in 2019 with the guidance of <a href="https://www.sigs.tsinghua.edu.cn/xx_443/main.psp">Associate Prof. Xi Xiao</a> and <a href="https://www.sigs.tsinghua.edu.cn/xst/main.psp">Prof. Shu-Tao Xia</a>. I later completed my Ph.D. in Management Science and Engineering in 2024 at the <a href="https://www.sigs.tsinghua.edu.cn/7696/list.htm">Tsinghua–Berkeley Shenzhen Institute, Tsinghua University</a>, jointly advised by <a href="https://fba.um.edu.mo/faculty/lixiao/">Associate Prof. Li Xiao</a> and <a href="https://isci.hku.hk/isci-about-en/isci-governance-en/isci-max-profile-en/">Prof. Zuo-Jun Max Shen</a>. I remain deeply grateful for their guidance, encouragement and trust, and hope to carry that same generosity into my own work with students.</p>
+<p>Before joining Chongqing University, I was a Senior Researcher in the AI Innovation Group at Jen Music AI (2024–2026).</p>
+<p>I am especially fortunate to share this journey with <a href="https://holmescao.github.io/">Dr. Xiaoyan Cao</a> of Peking University, my closest research collaborator. Our partnership holds a special place in my academic life, grounded in mutual trust, shared curiosity and the pleasure of pursuing meaningful questions together.</p>
+</div></div>
 </section>

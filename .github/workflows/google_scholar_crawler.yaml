@@ -1,15 +1,18 @@
 name: Get Citation Data
-
 on:
   workflow_dispatch:
-  schedule:
-    # Monday 08:17 Asia/Shanghai (UTC+8).
+    inputs:
+      metadata_only:
+        description: Rebuild publication catalog using the last successful Scholar snapshot
+        type: boolean
+        default: false
+  schedule:    
+# Monday 08:17 Asia/Shanghai (UTC+8).
     - cron: "17 0 * * 1"
 
 concurrency:
   group: google-scholar-update
   cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest

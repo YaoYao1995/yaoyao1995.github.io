@@ -18,6 +18,12 @@
 .scholar-section .paper-meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:12px;line-height:1.6;margin:6px 0 0;color:#65767b}
 .scholar-section .paper-venue{font-weight:600;color:#286570}
 .scholar-section .scholar-note{margin-top:16px}
+.scholar-section .citation-badge{display:inline-flex;align-items:stretch;vertical-align:middle;border:0;border-radius:4px;overflow:hidden;font-size:12px;line-height:22px;font-weight:400;white-space:nowrap;color:#333;text-decoration:none;margin:2px 0}
+.scholar-section .citation-badge:hover{border:0;filter:brightness(.96)}
+.scholar-section .citation-label{display:inline-flex;align-items:center;gap:5px;padding:0 6px;background:#e2e2e2}
+.scholar-section .citation-label svg{width:15px;height:15px;fill:#4285f4;flex:none}
+.scholar-section .citation-value{padding:0 6px;background:#91c2ee;color:#333;font-variant-numeric:tabular-nums}
+.scholar-section #scholar-total{display:inline-block;margin-left:7px}
 @media(max-width:700px){.scholar-section{margin:34px 0}.scholar-section .scholar-heading{font-size:28px}.scholar-section .paper-title{font-size:15px}.scholar-section summary{padding:14px 0}.scholar-section .paper-meta{gap:5px 10px}.scholar-section .scholar-list li{padding:13px 0}}
 </style>
 <section class="scholar-section" id="-news" aria-labelledby="news-heading">
@@ -27,7 +33,7 @@
 </section>
 <section class="scholar-section" id="-publications-categorized-by-research-area" aria-labelledby="publications-heading">
 <h2 class="scholar-heading" id="publications-heading">Publications</h2>
-<p class="scholar-subtitle">Journal articles &amp; selected conference papers · <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ">Google Scholar <span id="scholar-total"></span> ↗</a></p>
+<p class="scholar-subtitle">Journal articles &amp; selected conference papers · <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ">Google Scholar ↗</a> <span id="scholar-total"></span></p>
 <div id="formal-publications" aria-live="polite"><p class="scholar-note">Loading publications…</p></div>
 </section>
 <noscript><p>View my publications on <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ">Google Scholar</a>.</p></noscript>
@@ -41,6 +47,7 @@ var bag=[],last=-1;
 function nextNewsTemplate(){if(!bag.length){bag=newsTemplates.map(function(_,i){return i;});for(var i=bag.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=bag[i];bag[i]=bag[j];bag[j]=t;}if(bag[bag.length-1]===last){var t=bag[0];bag[0]=bag[bag.length-1];bag[bag.length-1]=t;}}last=bag.pop();return newsTemplates[last];}
 function el(tag,cls,text){var node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function safeLink(url){try{var u=new URL(url);return u.protocol==='https:'&&!/arxiv|ssrn|patents|biorxiv|medrxiv|researchsquare|techrxiv/i.test(u.hostname);}catch(e){return false;}}
+function citationBadge(count){var link=el('a','citation-badge');link.setAttribute('aria-label',count+' citations on Google Scholar');var label=el('span','citation-label');var icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');var path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M12 1 0 10l4.8 3.6A8 8 0 0 1 12 9a8 8 0 0 1 7.2 4.6L24 10 12 1zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z');icon.appendChild(path);label.appendChild(icon);label.appendChild(document.createTextNode('citations'));link.appendChild(label);link.appendChild(el('span','citation-value',String(count)));return link;}
 function metadata(p){var row=el('p','paper-meta');var venue=el('span','paper-venue',p.venue_short||p.venue);venue.title=p.venue;row.appendChild(venue);row.appendChild(el('span','',String(p.year)));row.appendChild(el('span','',p.kind==='journal'?'Journal article':'Conference paper'));return row;}
 function authorLine(names){var line=el('p','paper-authors');String(names||'').split(/(Yao Yao)/i).forEach(function(part){line.appendChild(part.toLowerCase()==='yao yao'?el('strong','',part):document.createTextNode(part));});return line;}
 function render(data){
@@ -55,14 +62,14 @@ function render(data){
   years.forEach(function(year,index){var details=el('details');details.open=mode===0?index===0:index<2;var summary=el('summary','',year);summary.appendChild(el('span','year-count',groups[year].length+' '+(groups[year].length===1?'publication':'publications')));details.appendChild(summary);var list=el('ul','scholar-list');
    groups[year].sort(function(a,b){return a.title.localeCompare(b.title);}).forEach(function(p){var li=el('li');var link=el('a','',p.title);link.href=p.url;
     if(mode===0){var template=nextNewsTemplate();var line=el('p','news-line');line.appendChild(document.createTextNode(template[0]+'“'));line.appendChild(link);line.appendChild(document.createTextNode('”'+template[1]));li.appendChild(line);li.appendChild(metadata(p));}
-    else{var heading=el('h3','paper-title');heading.appendChild(link);li.appendChild(heading);li.appendChild(authorLine(p.authors));var meta=metadata(p);var read=el('a','','Read paper ↗');read.href=p.url;meta.appendChild(read);if(Number.isInteger(p.citations)){var cite=el('a','',p.citations+' citations');cite.href='https://scholar.google.com/citations?view_op=view_citation&user='+scholarId+'&citation_for_view='+encodeURIComponent(p.scholar_id);meta.appendChild(cite);}li.appendChild(meta);}
+    else{var heading=el('h3','paper-title');heading.appendChild(link);li.appendChild(heading);li.appendChild(authorLine(p.authors));var meta=metadata(p);var read=el('a','','Read paper ↗');read.href=p.url;meta.appendChild(read);if(Number.isInteger(p.citations)){var cite=citationBadge(p.citations);cite.href='https://scholar.google.com/citations?view_op=view_citation&user='+scholarId+'&citation_for_view='+encodeURIComponent(p.scholar_id);meta.appendChild(cite);}li.appendChild(meta);}
     list.appendChild(li);
    });details.appendChild(list);fragment.appendChild(details);
   });
   if(!years.length)fragment.appendChild(el('p','scholar-note','No verified publications to display yet.'));
-  var updated=String(data.updated||'').match(/^\d{4}-\d{2}-\d{2}/);fragment.appendChild(el('p','scholar-note','Formal publications only · Updated weekly'+(updated?' · '+updated[0]:'')));root.replaceChildren(fragment);
+  root.replaceChildren(fragment);
  });
- if(Number.isInteger(data.citedby))document.getElementById('scholar-total').textContent='· '+data.citedby+' citations across all works';
+ if(Number.isInteger(data.citedby)){var total=citationBadge(data.citedby);total.href='https://scholar.google.com/citations?user='+scholarId;total.title='Google Scholar citations across all works';document.getElementById('scholar-total').replaceChildren(total);}
 }
 var controller=new AbortController();var timer=setTimeout(function(){controller.abort();},20000);
 fetch('https://raw.githubusercontent.com/YaoYao1995/yaoyao1995.github.io/google-scholar-stats/gs_data.json',{cache:'no-store',signal:controller.signal}).then(function(r){if(!r.ok)throw new Error('Data unavailable');return r.json();}).then(render).catch(function(){roots.forEach(function(root){var p=el('p','scholar-note','Publication data is temporarily unavailable. ');var a=el('a','','View Google Scholar ↗');a.href='https://scholar.google.com/citations?user='+scholarId;p.appendChild(a);root.replaceChildren(p);});}).finally(function(){clearTimeout(timer);});

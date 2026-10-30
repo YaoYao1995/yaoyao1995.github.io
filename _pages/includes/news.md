@@ -1,142 +1,70 @@
-# 🔥 News
-
-<div id="scholar-news" aria-live="polite">
-  <p>Loading research updates from <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ&sortby=pubdate">Google Scholar</a>…</p>
-</div>
-<noscript><p>See my <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ&sortby=pubdate">latest research on Google Scholar</a>.</p></noscript>
-
+<style style="display:none !important">
+.scholar-section{max-width:920px;margin:48px 0;color:#39474c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;scroll-margin-top:90px}
+.scholar-section .scholar-heading{font-family:Georgia,"Times New Roman",serif;font-size:32px;font-weight:400;letter-spacing:-.025em;line-height:1.2;margin:0 0 10px;border:0;padding:0;color:#213c43}
+.scholar-section .scholar-subtitle,.scholar-section .scholar-note{font-size:12px;line-height:1.65;color:#65767b;margin:0 0 22px}
+.scholar-section a{color:#286570;text-decoration:none;border-bottom:1px solid transparent;overflow-wrap:anywhere}
+.scholar-section a:hover{border-bottom-color:#8baeb4;color:#173d45}
+.scholar-section a:focus-visible,.scholar-section summary:focus-visible{outline:2px solid #286570;outline-offset:4px}
+.scholar-section details{border-top:1px solid #dae4e5}
+.scholar-section summary{cursor:pointer;padding:16px 0;font-size:17px;font-weight:500;color:#2c4b53;font-variant-numeric:tabular-nums}
+.scholar-section summary .year-count{font-size:11px;font-weight:400;color:#75848a;margin-left:12px}
+.scholar-section .scholar-list{list-style:none;padding:0;margin:0 0 20px}
+.scholar-section .scholar-list li{margin:0;padding:14px 0;border-top:1px solid #edf1f2;min-width:0}
+.scholar-section .news-line{font-size:14px;line-height:1.8;margin:0;overflow-wrap:anywhere}
+.scholar-section .news-line a{font-weight:500}
+.scholar-section .paper-title{font-size:16px;font-weight:500;line-height:1.55;margin:0 0 7px;overflow-wrap:anywhere}
+.scholar-section .paper-authors{font-size:12px;line-height:1.6;color:#758087;margin:0 0 8px;overflow-wrap:anywhere}
+.scholar-section .paper-authors strong{font-weight:600;color:#3d5961}
+.scholar-section .paper-meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:12px;line-height:1.6;margin:6px 0 0;color:#65767b}
+.scholar-section .paper-venue{font-weight:600;color:#286570}
+.scholar-section .scholar-note{margin-top:16px}
+@media(max-width:700px){.scholar-section{margin:34px 0}.scholar-section .scholar-heading{font-size:28px}.scholar-section .paper-title{font-size:15px}.scholar-section summary{padding:14px 0}.scholar-section .paper-meta{gap:5px 10px}.scholar-section .scholar-list li{padding:13px 0}}
+</style>
+<section class="scholar-section" id="-news" aria-labelledby="news-heading">
+<h2 class="scholar-heading" id="news-heading">News</h2>
+<p class="scholar-subtitle">New publications &amp; research milestones</p>
+<div id="scholar-news" aria-live="polite"><p class="scholar-note">Loading publication updates…</p></div>
+</section>
+<section class="scholar-section" id="-publications-categorized-by-research-area" aria-labelledby="publications-heading">
+<h2 class="scholar-heading" id="publications-heading">Publications</h2>
+<p class="scholar-subtitle">Journal articles &amp; selected conference papers · <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ">Google Scholar <span id="scholar-total"></span> ↗</a></p>
+<div id="formal-publications" aria-live="polite"><p class="scholar-note">Loading publications…</p></div>
+</section>
+<noscript><p>View my publications on <a href="https://scholar.google.com/citations?user=hNO0NdEAAAAJ">Google Scholar</a>.</p></noscript>
 <script>
-(function () {
-  'use strict';
-  // The daily Get Citation Data workflow refreshes this file.
-  // Scholar supplies years, not acceptance dates: never infer acceptance or a venue.
-  var root = document.getElementById('scholar-news');
-  var scholarId = 'hNO0NdEAAAAJ';
-  var source = 'https://raw.githubusercontent.com/YaoYao1995/yaoyao1995.github.io/google-scholar-stats/gs_data.json';
-  var controller = new AbortController();
-  var timer = setTimeout(function () { controller.abort(); }, 15000);
-
-  fetch(source, { cache: 'no-store', signal: controller.signal })
-    .then(function (response) {
-      if (!response.ok) throw new Error('Scholar data unavailable');
-      return response.json();
-    })
-    .then(function (data) {
-      if (data.scholar_id !== scholarId || !data.publications) {
-        throw new Error('Unexpected Scholar profile');
-      }
-      var byTitle = new Map();
-      Object.keys(data.publications).forEach(function (id) {
-        var bib = data.publications[id].bib || {};
-        var title = typeof bib.title === 'string' ? bib.title.trim() : '';
-        var yearText = String(bib.pub_year || '');
-        if (!title || !/^\d{4}$/.test(yearText) || id.indexOf(scholarId + ':') !== 0) return;
-        var year = Number(yearText);
-        if (year < 1900 || year > new Date().getFullYear() + 1) return;
-        // Merge duplicate title records, keeping the most recent listed year.
-        var key = title.toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
-        var previous = byTitle.get(key);
-        if (!previous || year > previous.year) byTitle.set(key, { id: id, title: title, year: year });
-      });
-      var groups = {};
-      byTitle.forEach(function (item) {
-        (groups[item.year] || (groups[item.year] = [])).push(item);
-      });
-      var years = Object.keys(groups).sort(function (a, b) { return Number(b) - Number(a); });
-      if (!years.length) throw new Error('No dated research updates');
-      var newsTemplates = [
-  ['🥳 Delighted to share our work: ', '!'],
-  ['🎉 Excited to introduce ', '!'],
-  ['✨ A research highlight to share: ', '.'],
-  ['📚 From our research collection: ', '.'],
-  ['🥳 Happy to put the spotlight on ', '!'],
-  ['🔎 Take a closer look at ', '.'],
-  ['🎊 Celebrating the work behind ', '!'],
-  ['💡 Explore the ideas in ', '.'],
-  ['📖 A contribution we are pleased to share: ', '.'],
-  ['🙌 Proud to share ', ' with you!'],
-  ['✨ In the research spotlight: ', '.'],
-  ['🎉 Here is a piece of our research journey: ', '!'],
-  ['🔬 Discover our work on ', '.'],
-  ['🥳 A little research celebration for ', '!'],
-  ['📚 On our reading list: ', '.'],
-  ['💬 We would love to hear your thoughts on ', '.'],
-  ['🌟 Highlighting a contribution from our team: ', '.'],
-  ['🎊 A moment to celebrate ', '!'],
-  ['💡 Curious about our research? Explore ', '.'],
-  ['📖 For a closer look at our work, read ', '.'],
-  ['🙌 Sharing a chapter of our research story: ', '.'],
-  ['✨ An invitation to explore ', '.'],
-  ['🔎 Behind this title is a research journey: ', '.'],
-  ['🎉 Pleased to bring you ', '!'],
-  ['🥳 Here is some research worth sharing: ', '!']
-];
-// Shuffle without replacement; never repeat at a shuffle boundary.
-var templateBag = [];
-var lastTemplate = -1;
-function nextNewsTemplate() {
-  if (!templateBag.length) {
-    templateBag = newsTemplates.map(function (_, index) { return index; });
-    for (var i = templateBag.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temporary = templateBag[i];
-      templateBag[i] = templateBag[j];
-      templateBag[j] = temporary;
-    }
-    if (templateBag[templateBag.length - 1] === lastTemplate) {
-      var first = templateBag[0];
-      templateBag[0] = templateBag[templateBag.length - 1];
-      templateBag[templateBag.length - 1] = first;
-    }
-  }
-  lastTemplate = templateBag.pop();
-  return newsTemplates[lastTemplate];
+(function(){
+'use strict';
+var scholarId='hNO0NdEAAAAJ';
+var roots=[document.getElementById('scholar-news'),document.getElementById('formal-publications')];
+var newsTemplates=[['🥳 Delighted to share our work: ','!'],['🎉 Excited to introduce ','!'],['✨ A research highlight to share: ','.'],['📚 From our research collection: ','.'],['🥳 Happy to put the spotlight on ','!'],['🔎 Take a closer look at ','.'],['🎊 Celebrating the work behind ','!'],['💡 Explore the ideas in ','.'],['📖 A contribution we are pleased to share: ','.'],['🙌 Proud to share ',' with you!'],['✨ In the research spotlight: ','.'],['🎉 Here is a piece of our research journey: ','!'],['🔬 Discover our work on ','.'],['🥳 A little research celebration for ','!'],['📚 On our reading list: ','.'],['💬 We would love to hear your thoughts on ','.'],['🌟 Highlighting a contribution from our team: ','.'],['🎊 A moment to celebrate ','!'],['💡 Curious about our research? Explore ','.'],['📖 For a closer look at our work, read ','.'],['🙌 Sharing a chapter of our research story: ','.'],['✨ An invitation to explore ','.'],['🔎 Behind this title is a research journey: ','.'],['🎉 Pleased to bring you ','!'],['🥳 Here is some research worth sharing: ','!']];
+var bag=[],last=-1;
+function nextNewsTemplate(){if(!bag.length){bag=newsTemplates.map(function(_,i){return i;});for(var i=bag.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=bag[i];bag[i]=bag[j];bag[j]=t;}if(bag[bag.length-1]===last){var t=bag[0];bag[0]=bag[bag.length-1];bag[bag.length-1]=t;}}last=bag.pop();return newsTemplates[last];}
+function el(tag,cls,text){var node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
+function safeLink(url){try{var u=new URL(url);return u.protocol==='https:'&&!/arxiv|ssrn|patents|biorxiv|medrxiv|researchsquare|techrxiv/i.test(u.hostname);}catch(e){return false;}}
+function metadata(p){var row=el('p','paper-meta');var venue=el('span','paper-venue',p.venue_short||p.venue);venue.title=p.venue;row.appendChild(venue);row.appendChild(el('span','',String(p.year)));row.appendChild(el('span','',p.kind==='journal'?'Journal article':'Conference paper'));return row;}
+function authorLine(names){var line=el('p','paper-authors');String(names||'').split(/(Yao Yao)/i).forEach(function(part){line.appendChild(part.toLowerCase()==='yao yao'?el('strong','',part):document.createTextNode(part));});return line;}
+function render(data){
+ if(data.scholar_id!==scholarId||data.catalog_schema!==1||!data.verified_publications)throw new Error('Verified catalog unavailable');
+ var seen=new Set(),groups={};
+ Object.values(data.verified_publications).forEach(function(p){
+  if(!p.title||!p.venue||!['journal','conference'].includes(p.kind)||!Number.isInteger(p.year)||!safeLink(p.url))return;
+  var key=p.url.toLowerCase();if(seen.has(key))return;seen.add(key);(groups[p.year]||(groups[p.year]=[])).push(p);
+ });
+ var years=Object.keys(groups).sort(function(a,b){return b-a;});
+ roots.forEach(function(root,mode){var fragment=document.createDocumentFragment();
+  years.forEach(function(year,index){var details=el('details');details.open=mode===0?index===0:index<2;var summary=el('summary','',year);summary.appendChild(el('span','year-count',groups[year].length+' '+(groups[year].length===1?'publication':'publications')));details.appendChild(summary);var list=el('ul','scholar-list');
+   groups[year].sort(function(a,b){return a.title.localeCompare(b.title);}).forEach(function(p){var li=el('li');var link=el('a','',p.title);link.href=p.url;
+    if(mode===0){var template=nextNewsTemplate();var line=el('p','news-line');line.appendChild(document.createTextNode(template[0]+'“'));line.appendChild(link);line.appendChild(document.createTextNode('”'+template[1]));li.appendChild(line);li.appendChild(metadata(p));}
+    else{var heading=el('h3','paper-title');heading.appendChild(link);li.appendChild(heading);li.appendChild(authorLine(p.authors));var meta=metadata(p);var read=el('a','','Read paper ↗');read.href=p.url;meta.appendChild(read);if(Number.isInteger(p.citations)){var cite=el('a','',p.citations+' citations');cite.href='https://scholar.google.com/citations?view_op=view_citation&user='+scholarId+'&citation_for_view='+encodeURIComponent(p.scholar_id);meta.appendChild(cite);}li.appendChild(meta);}
+    list.appendChild(li);
+   });details.appendChild(list);fragment.appendChild(details);
+  });
+  if(!years.length)fragment.appendChild(el('p','scholar-note','No verified publications to display yet.'));
+  var updated=String(data.updated||'').match(/^\d{4}-\d{2}-\d{2}/);fragment.appendChild(el('p','scholar-note','Formal publications only · Updated weekly'+(updated?' · '+updated[0]:'')));root.replaceChildren(fragment);
+ });
+ if(Number.isInteger(data.citedby))document.getElementById('scholar-total').textContent='· '+data.citedby+' citations across all works';
 }
-var fragment = document.createDocumentFragment();
-      years.forEach(function (year, index) {
-        var section = document.createElement('details');
-        section.open = index === 0;
-        section.style.marginBottom = '0.8em';
-        var heading = document.createElement('summary');
-        heading.style.cursor = 'pointer';
-        heading.style.fontWeight = '600';
-        heading.textContent = year + ' · ' + groups[year].length + ' research updates';
-        section.appendChild(heading);
-        var list = document.createElement('ul');
-        // Alphabetical within a year: Scholar does not supply reliable month/day dates.
-        groups[year].sort(function (a, b) { return a.title.localeCompare(b.title); });
-        groups[year].forEach(function (item) {
-          var entry = document.createElement('li');
-          var template = nextNewsTemplate();
-          entry.appendChild(document.createTextNode(template[0] + '“'));
-          var link = document.createElement('a');
-          link.href = 'https://scholar.google.com/citations?view_op=view_citation&hl=en&user=' + scholarId + '&citation_for_view=' + encodeURIComponent(item.id);
-          link.textContent = item.title;
-          entry.appendChild(link);
-          entry.appendChild(document.createTextNode('”' + template[1]));
-          list.appendChild(entry);
-        });
-        section.appendChild(list);
-        fragment.appendChild(section);
-      });
-      var note = document.createElement('p');
-      note.style.fontSize = '0.8em';
-      note.style.color = '#777';
-      var updated = String(data.updated || '').match(/^\d{4}-\d{2}-\d{2}/);
-      note.textContent = 'From Google Scholar · Grouped by listed publication year' + (updated ? ' · Updated ' + updated[0] : '');
-      fragment.appendChild(note);
-      root.replaceChildren(fragment);
-    })
-    .catch(function () {
-      root.replaceChildren();
-      var message = document.createElement('p');
-      message.appendChild(document.createTextNode('Research updates are temporarily unavailable. '));
-      var link = document.createElement('a');
-      link.href = 'https://scholar.google.com/citations?user=' + scholarId + '&sortby=pubdate';
-      link.textContent = 'View my latest work on Google Scholar.';
-      message.appendChild(link);
-      root.appendChild(message);
-    })
-    .finally(function () { clearTimeout(timer); });
+var controller=new AbortController();var timer=setTimeout(function(){controller.abort();},20000);
+fetch('https://raw.githubusercontent.com/YaoYao1995/yaoyao1995.github.io/google-scholar-stats/gs_data.json',{cache:'no-store',signal:controller.signal}).then(function(r){if(!r.ok)throw new Error('Data unavailable');return r.json();}).then(render).catch(function(){roots.forEach(function(root){var p=el('p','scholar-note','Publication data is temporarily unavailable. ');var a=el('a','','View Google Scholar ↗');a.href='https://scholar.google.com/citations?user='+scholarId;p.appendChild(a);root.replaceChildren(p);});}).finally(function(){clearTimeout(timer);});
 })();
 </script>

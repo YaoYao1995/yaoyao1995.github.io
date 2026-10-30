@@ -78,14 +78,22 @@ def enrich(author,previous=None):
  return author
 
 def main():
- from scholarly import scholarly
- author=scholarly.search_author_id(os.environ['GOOGLE_SCHOLAR_ID'])
- scholarly.fill(author,sections=['basics','indices','counts','publications'])
- author['updated']=datetime.now(timezone.utc).isoformat()
- author['publications']={p['author_pub_id']:p for p in author['publications']}
  try:previous=get_json('https://raw.githubusercontent.com/'+os.environ['GITHUB_REPOSITORY']+'/google-scholar-stats/gs_data.json')
  except Exception:previous={}
+ with open(os.environ['GITHUB_EVENT_PATH']) as event_file:event=json.load(event_file)
+ if str(event.get('inputs',{}).get('metadata_only','false')).lower()=='true':
+  if not previous.get('publications'):raise RuntimeError('No previous Scholar data')
+  author=dict(previous)
+  print('Rebuilding catalog from last successful Scholar snapshot',flush=True)
+ else:
+  from scholarly import scholarly
+  print('Fetching Google Scholar',flush=True)
+  author=scholarly.search_author_id(os.environ['GOOGLE_SCHOLAR_ID'])
+  scholarly.fill(author,sections=['basics','indices','counts','publications'])
+  author['updated']=datetime.now(timezone.utc).isoformat()
+  author['publications']={p['author_pub_id']:p for p in author['publications']}
  enrich(author,previous)
+ author['catalog_updated']=datetime.now(timezone.utc).isoformat()
  if not author['verified_publications']:raise RuntimeError('No verified publications; retaining previous dataset')
  os.makedirs('results',exist_ok=True)
  with open('results/gs_data.json','w') as f:json.dump(author,f,ensure_ascii=False)

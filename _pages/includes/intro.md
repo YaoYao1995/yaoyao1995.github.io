@@ -20,17 +20,12 @@
 .academic-intro .research-lines span.research-detail{color:#65767b;font-size:13px}
 .academic-intro .intro-background{display:grid;grid-template-columns:110px 1fr;gap:24px;align-items:baseline}
 .academic-intro .intro-background p{font-size:14px;line-height:1.8;color:#657278;margin:0}
-.academic-intro .intro-links{display:flex;flex-wrap:wrap;align-items:center;gap:14px 25px;margin-top:26px}
-.academic-intro .intro-links a{font-size:13px;display:inline-flex;align-items:center;gap:8px;padding:9px 0;border:0}
-.academic-intro .intro-links a.intro-faculty{background:#edf4f4;border:1px solid #d5e4e5;border-radius:4px;padding:10px 14px;font-weight:600}
-.academic-intro .intro-links a.intro-faculty:hover{background:#e1eeee}
-.academic-intro .intro-links .intro-arrow{margin-left:9px}
-@media(max-width:700px){.academic-intro{margin-bottom:35px}.academic-intro .intro-research{grid-template-columns:1fr;gap:24px;margin-top:24px}.academic-intro .intro-background{grid-template-columns:1fr;gap:0}.academic-intro .intro-background .intro-label{margin-bottom:10px}.academic-intro .intro-lead{font-size:16px}.academic-intro h1.intro-title{font-size:34px}.academic-intro .intro-links{gap:6px 20px}}
+@media(max-width:700px){.academic-intro{margin-bottom:35px}.academic-intro .intro-research{grid-template-columns:1fr;gap:24px;margin-top:24px}.academic-intro .intro-background{grid-template-columns:1fr;gap:0}.academic-intro .intro-background .intro-label{margin-bottom:10px}.academic-intro .intro-lead{font-size:16px}.academic-intro h1.intro-title{font-size:34px}}
 </style>
 <section class="academic-intro" id="about-me" aria-labelledby="intro-title">
 <p class="intro-kicker">About &amp; Research</p>
 <h1 class="intro-title" id="intro-title">AI for Science.<br><em>Resilient cities, informed decisions.</em></h1>
-<p class="intro-lead">I am an <span class="intro-role">Associate Professor</span> and master's supervisor at the <a href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm">School of Management Science and Real Estate, Chongqing University</a>, where I joined in June 2026.</p>
+<p class="intro-lead">I am an <span class="intro-role">Associate Professor</span> and master's supervisor at the <a href="https://msre.cqu.edu.cn/">School of Management Science and Real Estate, Chongqing University</a>, where I joined in June 2026.</p>
 <div class="intro-research">
 <div><h2 class="intro-label">Research approach</h2><p>I combine physical modeling, machine learning and deep learning to understand complex urban systems. My research connects risk assessment and process simulation with scenario evaluation and design optimization, supporting practical decisions for resilient infrastructure.</p></div>
 <div><h2 class="intro-label">Current focus</h2><ol class="research-lines">
@@ -40,5 +35,4 @@
 </ol></div>
 </div>
 <div class="intro-background"><h2 class="intro-label">Background</h2><p>I received my Ph.D. in Management Science and Engineering (2024) and master's degree in Computer Technology (2019) from Tsinghua University, and my bachelor's degree in Computer Science and Technology (2015) from Beihang University. Previously, I was a Senior Researcher in the AI Innovation Group at Jen Music AI (2024–2026).</p></div>
-<div class="intro-links"><a class="intro-faculty" href="https://msre.cqu.edu.cn/szdw/jslb/yy1.htm"><i class="fas fa-university" aria-hidden="true"></i> CQU Faculty Profile <span class="intro-arrow" aria-hidden="true">↗</span></a><a href="mailto:yao_yao@cqu.edu.cn"><i class="fas fa-envelope" aria-hidden="true"></i> yao_yao@cqu.edu.cn</a></div>
 </section>

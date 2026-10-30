@@ -77,25 +77,141 @@ def enrich(author,previous=None):
  print('Verified formal papers:',len(results),'Excluded / unverified:',len(excluded))
  return author
 
+
+import copy
+import urllib.error
+from bs4 import BeautifulSoup
+class ScholarFetchError(RuntimeError):pass
+
+def _integer(text,label,blank_zero=False):
+ text=text.strip().replace(',','').replace('\u00a0','')
+ if not text and blank_zero:return 0
+ if not re.fullmatch(r'\d+',text):raise ScholarFetchError('Missing or invalid '+label)
+ return int(text)
+
+def parse_page(html,scholar_id):
+ soup=BeautifulSoup(html,'html.parser')
+ if soup.select_one('#gs_captcha_ccl, #recaptcha, .g-recaptcha, form[action*="/sorry/"]') or 'unusual traffic from your computer network' in soup.get_text(' ').lower():raise ScholarFetchError('Google Scholar access challenge; retaining previous data')
+ name=soup.select_one('#gsc_prf_in');table=soup.select_one('#gsc_a_b');totals=soup.select('#gsc_rsb_st .gsc_rsb_std');more=soup.select_one('#gsc_bpf_more')
+ if not name or not name.get_text(strip=True) or table is None or not totals or more is None:raise ScholarFetchError('Incomplete Scholar profile markup')
+ metrics={key:_integer(cell.get_text(),key) for key,cell in zip(('citedby','citedby5y','hindex','hindex5y','i10index','i10index5y'),totals)}
+ publications={};rows=table.select('tr.gsc_a_tr')
+ if not rows:raise ScholarFetchError('Empty Scholar publication page')
+ for row in rows:
+  title=row.select_one('a.gsc_a_at');citation_cell=row.select_one('td.gsc_a_c');year_cell=row.select_one('td.gsc_a_y')
+  if title is None or citation_cell is None or year_cell is None or not title.get_text(strip=True):raise ScholarFetchError('Incomplete Scholar publication row')
+  query=urllib.parse.parse_qs(urllib.parse.urlparse(title.get('href','')).query);pid=query.get('citation_for_view',[''])[0]
+  if not re.fullmatch(re.escape(scholar_id)+r':[\w-]+',pid) or pid in publications:raise ScholarFetchError('Invalid, foreign or duplicate Scholar publication ID')
+  year=year_cell.get_text(strip=True)
+  if year and not re.fullmatch(r'(19|20)\d{2}',year):raise ScholarFetchError('Invalid Scholar publication year')
+  citation_number=citation_cell.select_one('a.gsc_a_ac')
+  if citation_number is None:raise ScholarFetchError('Missing Scholar citation-count element')
+  count=_integer(citation_number.get_text(),'publication citations',blank_zero=True);detail=row.select('.gsc_a_t .gs_gray')
+  pub={'container_type':'Publication','source':'AUTHOR_PUBLICATION_ENTRY','bib':{'title':title.get_text(' ',strip=True),'pub_year':year},'filled':False,'author_pub_id':pid,'num_citations':count}
+  if detail:pub['bib']['author']=detail[0].get_text(' ',strip=True)
+  if len(detail)>1:pub['bib']['citation']=detail[1].get_text(' ',strip=True)
+  cite_link=citation_cell.select_one('a[href]')
+  if cite_link:
+   url=urllib.parse.urljoin('https://scholar.google.com',cite_link['href']);pub['citedby_url']=url;cite_ids=urllib.parse.parse_qs(urllib.parse.urlparse(url).query).get('cites',[])
+   if cite_ids:pub['cites_id']=cite_ids[0].split(',')
+  publications[pid]=pub
+ has_more=not more.has_attr('disabled')
+ if has_more and len(rows)!=100:raise ScholarFetchError('Truncated Scholar page before pagination')
+ return dict(name=name.get_text(' ',strip=True),metrics=metrics,publications=publications,has_more=has_more)
+
+def _profile_html(url,opener,sleeper):
+ for attempt in range(3):
+  try:
+   request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0','Accept-Language':'en-US,en;q=0.9'})
+   with opener(request,timeout=20) as response:
+    status=getattr(response,'status',200)
+    if status!=200:raise ScholarFetchError('Unexpected Scholar HTTP '+str(status))
+    body=response.read(2*1024*1024+1)
+    if len(body)>2*1024*1024:raise ScholarFetchError('Oversized Scholar response')
+    print('Scholar HTTP 200: '+str(len(body))+' bytes',flush=True)
+    return body.decode('utf-8')
+  except urllib.error.HTTPError as error:
+   if error.code in (403,429):raise ScholarFetchError('Google Scholar HTTP '+str(error.code)+'; previous data retained') from error
+   if error.code<500 or attempt==2:raise ScholarFetchError('Google Scholar HTTP '+str(error.code)) from error
+  except (urllib.error.URLError,TimeoutError,OSError) as error:
+   if attempt==2:raise ScholarFetchError('Google Scholar network failure: '+type(error).__name__) from error
+  sleeper(2*(attempt+1))
+ raise ScholarFetchError('Google Scholar fetch failed')
+
+def fetch_scholar(scholar_id,previous=None,opener=urllib.request.urlopen,sleeper=time.sleep,max_pages=10):
+ if not re.fullmatch(r'[\w-]+',scholar_id):raise ScholarFetchError('Invalid Scholar profile ID')
+ publications={};first=None
+ for page in range(max_pages):
+  query=urllib.parse.urlencode({'hl':'en','user':scholar_id,'pagesize':100,'cstart':page*100})
+  print('Fetching Scholar publication page '+str(page+1),flush=True)
+  parsed=parse_page(_profile_html('https://scholar.google.com/citations?'+query,opener,sleeper),scholar_id)
+  if publications.keys() & parsed['publications'].keys():raise ScholarFetchError('Repeated Scholar pagination; retaining previous data')
+  if first is None:first=parsed
+  elif parsed['name']!=first['name']:raise ScholarFetchError('Scholar identity changed between pages')
+  publications.update(parsed['publications'])
+  if not parsed['has_more']:break
+  sleeper(1)
+ else:raise ScholarFetchError('Scholar page limit reached before completion')
+ old_count=len((previous or {}).get('publications',{}))
+ if old_count and len(publications)<old_count*.8:raise ScholarFetchError('Unexpected publication-count drop; retaining previous data')
+ author=copy.deepcopy(previous or {})
+ author.update(container_type='Author',source='AUTHOR_PROFILE_PAGE',scholar_id=scholar_id,name=first['name'],publications=publications,**first['metrics'])
+ author['updated']=datetime.now(timezone.utc).isoformat()
+ print('Scholar snapshot complete: '+str(len(publications))+' records, '+str(author['citedby'])+' citations',flush=True)
+ return author
+
+def current_week(updated,now=None):
+ try:
+  stamp=datetime.fromisoformat(updated.replace('Z','+00:00'))
+  if stamp.tzinfo is None:stamp=stamp.replace(tzinfo=timezone.utc)
+  now=now or datetime.now(timezone.utc)
+  from datetime import timedelta
+  local=timezone(timedelta(hours=8))
+  return stamp<=now and stamp.astimezone(local).isocalendar()[:2]==now.astimezone(local).isocalendar()[:2]
+ except (ValueError,AttributeError,TypeError):return False
+
+def validate_snapshot(author,previous):
+ expected=os.environ['GOOGLE_SCHOLAR_ID']
+ if author.get('scholar_id')!=expected:raise ValueError('Wrong Scholar identity')
+ pubs=author.get('publications')
+ if not isinstance(pubs,dict) or not pubs:raise ValueError('Empty publication list')
+ count=author.get('citedby')
+ if not isinstance(count,int) or isinstance(count,bool) or count<0:raise ValueError('Invalid citation total')
+ if previous.get('citedby',0)>0 and count==0:raise ValueError('Unexpected empty citation total')
+ if len(pubs)<len(previous.get('publications',{}))*.8:raise ValueError('Unexpectedly truncated publication list')
+ for pid,pub in pubs.items():
+  if not pid.startswith(expected+':') or not pub.get('bib',{}).get('title'):raise ValueError('Invalid publication')
+  if not isinstance(pub.get('num_citations'),int) or pub['num_citations']<0:raise ValueError('Invalid paper citation count')
+
 def main():
- try:previous=get_json('https://raw.githubusercontent.com/'+os.environ['GITHUB_REPOSITORY']+'/google-scholar-stats/gs_data.json')
- except Exception:previous={}
- with open(os.environ['GITHUB_EVENT_PATH']) as event_file:event=json.load(event_file)
- if str(event.get('inputs',{}).get('metadata_only','false')).lower()=='true':
-  if not previous.get('publications'):raise RuntimeError('No previous Scholar data')
-  author=dict(previous)
-  print('Rebuilding catalog from last successful Scholar snapshot',flush=True)
- else:
-  from scholarly import scholarly
-  print('Fetching Google Scholar',flush=True)
-  author=scholarly.search_author_id(os.environ['GOOGLE_SCHOLAR_ID'])
-  scholarly.fill(author,sections=['basics','indices','counts','publications'])
-  author['updated']=datetime.now(timezone.utc).isoformat()
-  author['publications']={p['author_pub_id']:p for p in author['publications']}
- enrich(author,previous)
- author['catalog_updated']=datetime.now(timezone.utc).isoformat()
- if not author['verified_publications']:raise RuntimeError('No verified publications; retaining previous dataset')
- os.makedirs('results',exist_ok=True)
- with open('results/gs_data.json','w') as f:json.dump(author,f,ensure_ascii=False)
- with open('results/gs_data_shieldsio.json','w') as f:json.dump({'schemaVersion':1,'label':'citations','message':str(author['citedby'])},f)
+ import pathlib,shutil,signal
+ shutil.rmtree('results',ignore_errors=True)
+ previous=get_json('https://raw.githubusercontent.com/'+os.environ['GITHUB_REPOSITORY']+'/google-scholar-stats/gs_data.json')
+ validate_snapshot(previous,previous)
+ event={}
+ if os.environ.get('GITHUB_EVENT_PATH'):
+  with open(os.environ['GITHUB_EVENT_PATH']) as event_file:event=json.load(event_file)
+ metadata_only=str(event.get('inputs',{}).get('metadata_only','false')).lower()=='true'
+ if os.environ.get('GITHUB_EVENT_NAME')=='schedule' and current_week(previous.get('updated')):
+  print('Already refreshed this week; no Scholar request needed.',flush=True);return
+ class RefreshDeadline(BaseException):pass
+ def timed_out(signum,frame):raise RefreshDeadline('Refresh exceeded 240 seconds; previous published data retained')
+ signal.signal(signal.SIGALRM,timed_out);signal.alarm(240)
+ try:
+  if metadata_only:
+   author=dict(previous)
+   print('Rebuilding catalog from last successful Scholar snapshot',flush=True)
+  else:
+   print('Fetching Google Scholar profile and publication pages',flush=True)
+   author=fetch_scholar(os.environ['GOOGLE_SCHOLAR_ID'],previous)
+   validate_snapshot(author,previous)
+   author['updated']=datetime.now(timezone.utc).isoformat()
+  enrich(author,previous)
+  author['catalog_updated']=datetime.now(timezone.utc).isoformat()
+  if not author['verified_publications']:raise RuntimeError('No verified publications; retaining previous dataset')
+  os.makedirs('results',exist_ok=True)
+  for name,data in [('gs_data.json',author),('gs_data_shieldsio.json',{'schemaVersion':1,'label':'citations','message':str(author['citedby'])})]:
+   target=pathlib.Path('results')/name;temp=target.with_suffix('.tmp');temp.write_text(json.dumps(data,ensure_ascii=False),encoding='utf-8');temp.replace(target)
+  print('Validated snapshot:',len(author['publications']),'records,',author['citedby'],'citations',flush=True)
+ finally:signal.alarm(0)
 if __name__=='__main__':main()

@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   diagnose:
-    runs-on: ubuntu-24.04
+    runs-on: macos-15
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
@@ -22,7 +22,7 @@ jobs:
           import subprocess, urllib.request
           from curl_cffi import requests
           import main
-          url = 'https://scholar.google.com.hk/citations?hl=en&user=hNO0NdEAAAAJ&pagesize=100&cstart=0'
+          url = 'https://scholar.google.com/citations?hl=en&user=hNO0NdEAAAAJ&pagesize=100&cstart=0'
           success = []
           def check(label, fetch):
               try:
@@ -32,12 +32,12 @@ jobs:
                   success.append(label)
               except Exception as error:
                   print(label, 'FAILED', type(error).__name__, str(error)[:160], flush=True)
-          check('urllib', lambda: urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0','Accept-Language':'en-US,en;q=0.9'}), timeout=20).read().decode())
-          check('curl', lambda: subprocess.check_output(['curl','--fail','--silent','--show-error','--max-time','20',url], text=True))
+          check('urllib', lambda: urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0','Accept-Language':'en-US,en;q=0.9'}), timeout=20).read())
+          check('curl', lambda: subprocess.check_output(['curl','--fail','--silent','--show-error','--max-time','20',url]))
           def browser():
               response=requests.get(url, impersonate='chrome', timeout=20)
               response.raise_for_status()
-              return response.text
+              return response.content
           check('chrome', browser)
           print('Validated transports:', success, flush=True)
           if not success:

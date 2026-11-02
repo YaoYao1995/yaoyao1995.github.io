@@ -97,7 +97,7 @@ def _serpapi_open(request,timeout=20):
          'num':100,'start':start,'output':'html','api_key':os.environ['SERPAPI_KEY']}
  api_request=urllib.request.Request(endpoint+'?'+urllib.parse.urlencode(params),headers={'Accept':'text/html'})
  try:
-  with urllib.request.urlopen(api_request,timeout=timeout) as response:yield response
+  with urllib.request.urlopen(api_request,timeout=max(timeout,60)) as response:yield response
  except urllib.error.HTTPError as error:
   code=error.code;error.close()
   raise urllib.error.HTTPError(endpoint,code,'SerpApi request failed',None,None) from None

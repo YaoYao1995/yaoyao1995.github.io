@@ -135,7 +135,7 @@ class SerpApiTransportTests(unittest.TestCase):
                     "hl": ["en"], "num": ["100"], "start": [str(start)],
                     "output": ["html"], "api_key": [self.secret],
                 })
-                self.assertEqual(kwargs["timeout"], 17)
+                self.assertEqual(kwargs["timeout"], 60)
 
     def test_invalid_key_http_error_never_exposes_authenticated_url(self):
         sensitive_url = "https://serpapi.com/search?api_key=" + self.secret

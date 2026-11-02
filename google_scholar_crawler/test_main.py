@@ -6,6 +6,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import re
 import traceback
 import unittest
 from unittest.mock import Mock, mock_open, patch
@@ -49,6 +50,29 @@ def opener_for(html):
         response.status = 200
         return response
     return Mock(side_effect=opener)
+
+
+def profile_page(start, count, *, more=False):
+    html = profile_html(more=more)
+    row = re.search(r'<tr class="gsc_a_tr">.*?</tr>', html, re.S).group()
+    rows = "".join(row.replace("paper001", "paper" + str(start + index).zfill(4))
+                   for index in range(count))
+    return html.replace(row, rows)
+
+
+def page_sequence_opener(pages):
+    remaining = iter(pages)
+
+    def opener(request, timeout):
+        response = io.BytesIO(next(remaining).encode("utf-8"))
+        response.status = 200
+        return response
+    return Mock(side_effect=opener)
+
+
+def requested_offsets(opener):
+    return [int(urllib.parse.parse_qs(urllib.parse.urlparse(call.args[0].full_url).query)["cstart"][0])
+            for call in opener.call_args_list]
 
 
 class ScholarValidationTests(unittest.TestCase):
@@ -111,6 +135,67 @@ class ScholarValidationTests(unittest.TestCase):
         parsed = main.parse_page(received, SCHOLAR_ID)
         self.assertEqual(parsed["publications"][SCHOLAR_ID + ":paper001"]["bib"]["title"],
                          "Flood–risk forecasting")
+
+
+class ScholarPaginationTests(unittest.TestCase):
+    def test_complete_profiles_across_page_boundaries(self):
+        for total in (100, 101, 200, 201, 300):
+            with self.subTest(total=total):
+                offsets = list(range(0, total, 100))
+                pages = [profile_page(start, min(100, total - start), more=start + 100 < total)
+                         for start in offsets]
+                opener = page_sequence_opener(pages)
+                result = main.fetch_scholar(SCHOLAR_ID, opener=opener, sleeper=Mock())
+                self.assertEqual(len(result["publications"]), total)
+                self.assertEqual(result["scholar_id"], SCHOLAR_ID)
+                self.assertEqual(requested_offsets(opener), offsets)
+                self.assertIn(SCHOLAR_ID + ":paper" + str(total - 1).zfill(4),
+                              result["publications"])
+
+    def test_exact_page_totals_allow_an_explicit_empty_terminal_page(self):
+        for total in (100, 200):
+            with self.subTest(total=total):
+                pages = [profile_page(start, 100, more=True) for start in range(0, total, 100)]
+                pages.append(profile_page(total, 0))
+                opener = page_sequence_opener(pages)
+                result = main.fetch_scholar(SCHOLAR_ID, opener=opener, sleeper=Mock())
+                self.assertEqual(len(result["publications"]), total)
+                self.assertEqual(requested_offsets(opener), list(range(0, total + 1, 100)))
+
+    def test_first_page_must_not_be_empty(self):
+        opener = page_sequence_opener([profile_page(0, 0)])
+        with self.assertRaises(main.ScholarFetchError):
+            main.fetch_scholar(SCHOLAR_ID, opener=opener, sleeper=Mock())
+        self.assertEqual(requested_offsets(opener), [0])
+
+    def test_empty_later_page_with_more_enabled_is_rejected(self):
+        opener = page_sequence_opener([profile_page(0, 100, more=True),
+                                       profile_page(100, 0, more=True)])
+        with self.assertRaises(main.ScholarFetchError):
+            main.fetch_scholar(SCHOLAR_ID, opener=opener, sleeper=Mock())
+        self.assertEqual(requested_offsets(opener), [0, 100])
+
+    def test_empty_terminal_page_cannot_hide_a_missing_previous_tail(self):
+        previous = {"updated": "2026-10-29T00:00:00Z", "citedby": 546,
+                    "publications": {
+                        SCHOLAR_ID + ":paper" + str(index).zfill(4): {
+                            "bib": {"title": "Previous publication"}, "num_citations": 1,
+                        } for index in range(201)
+                    }}
+        before = copy.deepcopy(previous)
+        opener = page_sequence_opener([profile_page(0, 100, more=True),
+                                       profile_page(100, 100, more=True),
+                                       profile_page(200, 0)])
+        with self.assertRaises(main.ScholarFetchError):
+            main.fetch_scholar(SCHOLAR_ID, previous, opener=opener, sleeper=Mock())
+        self.assertEqual(requested_offsets(opener), [0, 100, 200])
+        self.assertEqual(previous, before)
+
+    def test_repeated_second_page_ids_are_rejected(self):
+        opener = page_sequence_opener([profile_page(0, 100, more=True), profile_page(0, 100)])
+        with self.assertRaisesRegex(main.ScholarFetchError, "Repeated Scholar pagination"):
+            main.fetch_scholar(SCHOLAR_ID, opener=opener, sleeper=Mock())
+        self.assertEqual(requested_offsets(opener), [0, 100])
 
 
 class SerpApiTransportTests(unittest.TestCase):

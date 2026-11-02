@@ -110,14 +110,14 @@ def _integer(text,label,blank_zero=False):
  if not re.fullmatch(r'\d+',text):raise ScholarFetchError('Missing or invalid '+label)
  return int(text)
 
-def parse_page(html,scholar_id):
+def parse_page(html,scholar_id,allow_empty=False):
  soup=BeautifulSoup(html,'html.parser')
  if soup.select_one('#gs_captcha_ccl, #recaptcha, .g-recaptcha, form[action*="/sorry/"]') or 'unusual traffic from your computer network' in soup.get_text(' ').lower():raise ScholarFetchError('Google Scholar access challenge; retaining previous data')
  name=soup.select_one('#gsc_prf_in');table=soup.select_one('#gsc_a_b');totals=soup.select('#gsc_rsb_st .gsc_rsb_std');more=soup.select_one('#gsc_bpf_more')
- if not name or not name.get_text(strip=True) or table is None or not totals or more is None:raise ScholarFetchError('Incomplete Scholar profile markup')
+ if not name or not name.get_text(strip=True) or table is None or len(totals)!=6 or more is None:raise ScholarFetchError('Incomplete Scholar profile markup')
  metrics={key:_integer(cell.get_text(),key) for key,cell in zip(('citedby','citedby5y','hindex','hindex5y','i10index','i10index5y'),totals)}
  publications={};rows=table.select('tr.gsc_a_tr')
- if not rows:raise ScholarFetchError('Empty Scholar publication page')
+ if not rows and not (allow_empty and more.has_attr('disabled')):raise ScholarFetchError('Empty Scholar publication page')
  for row in rows:
   title=row.select_one('a.gsc_a_at');citation_cell=row.select_one('td.gsc_a_c');year_cell=row.select_one('td.gsc_a_y')
   if title is None or citation_cell is None or year_cell is None or not title.get_text(strip=True):raise ScholarFetchError('Incomplete Scholar publication row')
@@ -161,19 +161,20 @@ def _profile_html(url,opener,sleeper):
 
 def fetch_scholar(scholar_id,previous=None,opener=urllib.request.urlopen,sleeper=time.sleep,max_pages=10):
  if not re.fullmatch(r'[\w-]+',scholar_id):raise ScholarFetchError('Invalid Scholar profile ID')
+ old_count=len((previous or {}).get('publications',{}))
  publications={};first=None
  for page in range(max_pages):
   query=urllib.parse.urlencode({'hl':'en','user':scholar_id,'pagesize':100,'cstart':page*100})
   print('Fetching Scholar publication page '+str(page+1),flush=True)
-  parsed=parse_page(_profile_html('https://scholar.google.com/citations?'+query,opener,sleeper),scholar_id)
+  parsed=parse_page(_profile_html('https://scholar.google.com/citations?'+query,opener,sleeper),scholar_id,allow_empty=page>0)
   if publications.keys() & parsed['publications'].keys():raise ScholarFetchError('Repeated Scholar pagination; retaining previous data')
   if first is None:first=parsed
   elif parsed['name']!=first['name']:raise ScholarFetchError('Scholar identity changed between pages')
+  if not parsed['publications'] and len(publications)<old_count:raise ScholarFetchError('Unexpected empty final Scholar page; retaining previous data')
   publications.update(parsed['publications'])
   if not parsed['has_more']:break
   sleeper(1)
  else:raise ScholarFetchError('Scholar page limit reached before completion')
- old_count=len((previous or {}).get('publications',{}))
  if old_count and len(publications)<old_count*.8:raise ScholarFetchError('Unexpected publication-count drop; retaining previous data')
  author=copy.deepcopy(previous or {})
  author.update(container_type='Author',source='AUTHOR_PROFILE_PAGE',scholar_id=scholar_id,name=first['name'],publications=publications,**first['metrics'])
@@ -216,8 +217,8 @@ def main():
  if os.environ.get('GITHUB_EVENT_NAME')=='schedule' and current_week(previous.get('updated')):
   print('Already refreshed this week; no Scholar request needed.',flush=True);return
  class RefreshDeadline(BaseException):pass
- def timed_out(signum,frame):raise RefreshDeadline('Refresh exceeded 240 seconds; previous published data retained')
- signal.signal(signal.SIGALRM,timed_out);signal.alarm(240)
+ def timed_out(signum,frame):raise RefreshDeadline('Refresh exceeded 900 seconds; previous published data retained')
+ signal.signal(signal.SIGALRM,timed_out);signal.alarm(900)
  try:
   if metadata_only:
    author=dict(previous)

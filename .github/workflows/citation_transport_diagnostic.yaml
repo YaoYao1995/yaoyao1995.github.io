@@ -22,7 +22,7 @@ jobs:
           import subprocess, urllib.request
           from curl_cffi import requests
           import main
-          url = 'https://scholar.google.com/citations?hl=en&user=hNO0NdEAAAAJ&pagesize=100&cstart=0'
+          url = 'https://scholar.google.com.hk/citations?hl=en&user=hNO0NdEAAAAJ&pagesize=100&cstart=0'
           success = []
           def check(label, fetch):
               try:

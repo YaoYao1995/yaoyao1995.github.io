@@ -79,9 +79,30 @@ def enrich(author,previous=None):
 
 
 import copy
+from contextlib import contextmanager
 import urllib.error
 from bs4 import BeautifulSoup
 class ScholarFetchError(RuntimeError):pass
+
+@contextmanager
+def _serpapi_open(request,timeout=20):
+ # Retrieve the same Scholar profile HTML through SerpApi; keep one parser and
+ # never expose the authenticated request URL in exception tracebacks.
+ query=urllib.parse.parse_qs(urllib.parse.urlparse(request.full_url).query)
+ author_id=query.get('user',[''])[0];start=query.get('cstart',['0'])[0]
+ if not re.fullmatch(r'[\w-]+',author_id) or not re.fullmatch(r'\d+',start):
+  raise ScholarFetchError('Invalid Scholar API request')
+ endpoint='https://serpapi.com/search'
+ params={'engine':'google_scholar_author','author_id':author_id,'hl':'en',
+         'num':100,'start':start,'output':'html','api_key':os.environ['SERPAPI_KEY']}
+ api_request=urllib.request.Request(endpoint+'?'+urllib.parse.urlencode(params),headers={'Accept':'text/html'})
+ try:
+  with urllib.request.urlopen(api_request,timeout=max(timeout,60)) as response:yield response
+ except urllib.error.HTTPError as error:
+  code=error.code;error.close()
+  raise urllib.error.HTTPError(endpoint,code,'SerpApi request failed',None,None) from None
+ except (urllib.error.URLError,TimeoutError,OSError):
+  raise urllib.error.URLError('SerpApi network request failed') from None
 
 def _integer(text,label,blank_zero=False):
  text=text.strip().replace(',','').replace('\u00a0','')
@@ -129,7 +150,7 @@ def _profile_html(url,opener,sleeper):
     body=response.read(2*1024*1024+1)
     if len(body)>2*1024*1024:raise ScholarFetchError('Oversized Scholar response')
     print('Scholar HTTP 200: '+str(len(body))+' bytes',flush=True)
-    return body.decode('utf-8')
+    return body
   except urllib.error.HTTPError as error:
    if error.code in (403,429):raise ScholarFetchError('Google Scholar HTTP '+str(error.code)+'; previous data retained') from error
    if error.code<500 or attempt==2:raise ScholarFetchError('Google Scholar HTTP '+str(error.code)) from error
@@ -203,9 +224,14 @@ def main():
    print('Rebuilding catalog from last successful Scholar snapshot',flush=True)
   else:
    print('Fetching Google Scholar profile and publication pages',flush=True)
-   author=fetch_scholar(os.environ['GOOGLE_SCHOLAR_ID'],previous)
+   use_serpapi=bool(os.environ.get('SERPAPI_KEY'))
+   opener=_serpapi_open if use_serpapi else urllib.request.urlopen
+   author=fetch_scholar(os.environ['GOOGLE_SCHOLAR_ID'],previous,opener=opener)
    validate_snapshot(author,previous)
    author['updated']=datetime.now(timezone.utc).isoformat()
+   author['citation_provenance']={'upstream':'Google Scholar','transport':'SerpApi' if use_serpapi else 'direct',
+                                 'profile_url':'https://scholar.google.com/citations?user='+os.environ['GOOGLE_SCHOLAR_ID'],
+                                 'retrieved_at':author['updated']}
   enrich(author,previous)
   author['catalog_updated']=datetime.now(timezone.utc).isoformat()
   if not author['verified_publications']:raise RuntimeError('No verified publications; retaining previous dataset')
@@ -215,3 +241,4 @@ def main():
   print('Validated snapshot:',len(author['publications']),'records,',author['citedby'],'citations',flush=True)
  finally:signal.alarm(0)
 if __name__=='__main__':main()
+

@@ -1,10 +1,5 @@
 name: Get Citation Data
 on:
-  push:
-    branches: [main]
-    paths:
-      - google_scholar_crawler/**
-      - .github/workflows/google_scholar_crawler.yaml
   pull_request:
     paths:
       - google_scholar_crawler/**
@@ -26,7 +21,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
